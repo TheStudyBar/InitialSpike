@@ -1,4 +1,5 @@
 const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
+const fs = require('fs');
 
 // Specify the AWS Region, such as "us-east-1".
 const REGION = "us-east-2";
@@ -12,8 +13,10 @@ const s3 = new S3Client({ region: REGION });
 
 const run = async () => {
     try {
+        const outputWriter = process.stdout;
         const data = await s3.send(new GetObjectCommand(params));
-        console.log("Success, bucket returned", data);
+        //console.log("Success, bucket returned", data);
+        await data.Body.pipe(outputWriter);
     } catch (err) {
         console.log("Error", err);
     }
