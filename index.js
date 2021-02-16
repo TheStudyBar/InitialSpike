@@ -5,7 +5,7 @@ const static = require("koa-static");
 const koaRouter = require("koa-router");
 const mime = require('mime-types');
 const axios = require("axios");
-const {S3Client, CopyObjectCommand} = require("@aws-sdk/client-s3");
+const {S3Client, GetObjectCommand} = require("@aws-sdk/client-s3");
 
 var app = new Koa();
 var router = new koaRouter();
@@ -32,14 +32,14 @@ router.get("image", "/image/:resource_id", async (ctx) => {
     let resource_id = ctx.params["resource_id"];
     console.log("retrieving image for id " + resource_id);
 
-    const params = {
-        Bucket: "thestudybar-initialspike", Key: "bbutton-headshot-850x850.png"
+    const s3GetObjectParams = {
+        Bucket: "thestudybar-initialspike", Key: "BoardPictureWithTriciaAndBecky.png", ResponseContentType: "image/png"
     };
 
     const s3Client = new S3Client({ region: "us-east-2"});
     let data = null;
     try {
-        data = await s3Client.send(new CopyObjectCommand(params));
+        data = await s3Client.send(new GetObjectCommand(s3GetObjectParams));
         console.log("Successfully retrieved bucket object");
     } catch (err) {
         console.log("Error retrieving bucket object: ", err);
@@ -47,7 +47,7 @@ router.get("image", "/image/:resource_id", async (ctx) => {
     }
 
     ctx.response.set("content-type", "image/png");
-    ctx.body = data;
+    ctx.body = data.Body;
     ctx.httpStatusCode = 200;
     console.log("replied!");
 });
